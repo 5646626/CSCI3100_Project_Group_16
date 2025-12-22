@@ -13,7 +13,7 @@ class AuthService:
     
     # Register a new user with a valid licence key (Members, Hashira, or Boss).
     def signup(self, username: str, password: str, email: str = None, role: str = "Members", licence_key: str | None = None) -> tuple[ObjectId, str]:
-        # Although we have the Schema, we do a pre-validation here for fast catching errors
+        # Although we have the Schema, we do one more pre-validation here for fast catching errors
 
         # Check if user exists
         if self.user_repo.find_user_by_username(username):
@@ -70,7 +70,7 @@ class AuthService:
         # Get user by username
         return self.user_repo.find_user_by_username(username)
     
-    # Not currenly used, but could be useful for update user role in the future
-    # Update user to a different role
-    def update_user_role(self, user_id: ObjectId, new_role: str) -> bool:
-        return self.user_repo.update_user_role(user_id, new_role)
+#----------Not currenly used, but could implemented in the future----------#
+#   Update user to a different role
+#   def promote_user_role(self, user_id: ObjectId, new_role: str) -> bool:
+#       return self.user_repo.update_user_role(user_id, new_role)

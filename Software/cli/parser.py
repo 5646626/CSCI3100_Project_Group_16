@@ -32,7 +32,7 @@ def create_parser():
     list_boards = subparsers.add_parser("list-boards", help="List all boards")
     
     view_board = subparsers.add_parser("view-board", help="View tasks in a board")
-    view_board.add_argument("--name", required=True, help="Board name")
+    view_board.add_argument("--board", required=True, help="Board name")
     
     delete_board = subparsers.add_parser("delete-board", help="Delete a board (Boss only)")
     delete_board.add_argument("--name", required=True, help="Board name")
@@ -52,6 +52,7 @@ def create_parser():
     edit_task.add_argument("--new-title", help="New title")
     edit_task.add_argument("--desc", help="New description")
     edit_task.add_argument("--priority", choices=["high", "medium", "low"])
+    edit_task.add_argument("--due", help="New due date (YYYY-MM-DD)")
     
     move_task = subparsers.add_parser("move-task", help="Move task (Hashira or Boss)")
     move_task.add_argument("--board", required=True, help="Board name")
@@ -61,6 +62,10 @@ def create_parser():
     delete_task = subparsers.add_parser("delete-task", help="Delete a task (Hashira or Boss)")
     delete_task.add_argument("--board", required=True, help="Board name")
     delete_task.add_argument("--title", required=True, help="Task title")
+    
+    view_task = subparsers.add_parser("view-task", help="View task details")
+    view_task.add_argument("--board", required=True, help="Board name")
+    view_task.add_argument("--title", required=True, help="Task title")
     
     # Search/Filter commands
     search = subparsers.add_parser("search", help="Search tasks")

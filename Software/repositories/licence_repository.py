@@ -23,13 +23,6 @@ class LicenceRepository:
         if not doc:
             return None
         return Licence(**{**doc, '_id': doc['_id']})
-    
-    # Not used currently, but could be useful for finding licences owned by a user
-    def find_licence_by_owner(self, owner_id: ObjectId) -> Licence:
-        doc = self.adapter.find_one(self.COLLECTION_NAME, {"owner_id": owner_id})
-        if not doc:
-            return None
-        return Licence(**{**doc, '_id': doc['_id']})
 
     def assign_owner(self, key: str, owner_id: ObjectId) -> bool:
         """Bind a licence key to a user if it is not already claimed."""
@@ -43,3 +36,11 @@ class LicenceRepository:
     # Validate if a licence key exists
     def validate_licence(self, key: str) -> bool:
         return self.find_licence_by_key(key) is not None
+
+#-----------Not currenly used, but could implemented in the future----------#
+#   Finding licences owned by a user
+#    def find_licence_by_owner(self, owner_id: ObjectId) -> Licence:
+#        doc = self.adapter.find_one(self.COLLECTION_NAME, {"owner_id": owner_id})
+#        if not doc:
+#            return None
+#        return Licence(**{**doc, '_id': doc['_id']})

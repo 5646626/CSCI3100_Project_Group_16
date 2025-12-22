@@ -30,39 +30,23 @@ class LicenceService:
 
         return licence
     
-    # Not currently used, but could be useful for file-based licence validation
-    def validate_licence_file(self, file_path: str) -> str:
-        try:
-            with open(file_path, 'r') as f:
-                key = f.read().strip()
-            
-            if self.validate_licence(key):
-                return key
-            else:
-                raise ValueError("Licence key in file is not valid")
-        except FileNotFoundError:
-            raise FileNotFoundError(f"Licence file not found: {file_path}")
-        except Exception as e:
-            raise Exception(f"Error reading licence file: {e}")
-    
-    # Not currently used, but could be useful for creating licences in the future
-    def create_licence(self, key: str, owner_id: ObjectId | None = None, role: str = "Members") -> ObjectId:
-        if not self._is_valid_format(key):
-            raise ValueError(f"Invalid licence format. Expected: {self.VALID_FORMAT}")
-
-        valid_roles = ["Members", "Hashira", "Boss"]
-        if role not in valid_roles:
-            raise ValueError(f"Invalid role. Must be one of {valid_roles}")
-        
-        licence = Licence(key=key, owner_id=owner_id, role=role)
-        return self.licence_repo.create_licence(licence)
-
     def redeem_licence(self, key: str, owner_id: ObjectId) -> None:
-        """Mark a licence as claimed by a specific user."""
         updated = self.licence_repo.assign_owner(key, owner_id)
         if not updated:
             raise ValueError("Failed to claim licence key; it may have been used")
-    
+
+    # Creating licences
+    def create_licence(self, key: str, owner_id: 'ObjectId' = None, role: str = "Members") -> 'ObjectId':
+        if not self._is_valid_format(key):
+            raise ValueError(f"Invalid licence format. Expected: {{self.VALID_FORMAT}}")
+
+        valid_roles = ["Members", "Hashira", "Boss"]
+        if role not in valid_roles:
+            raise ValueError(f"Invalid role. Must be one of {{valid_roles}}")
+        from models.entities import Licence
+        licence = Licence(key=key, owner_id=owner_id, role=role)
+        return self.licence_repo.create_licence(licence)
+
     #----------------Helper Functions-----------------#
     @staticmethod
     def _is_valid_format(key: str) -> bool:
@@ -71,3 +55,20 @@ class LicenceService:
         if len(parts) != 4:
             return False
         return all(len(part) == 4 and part.isalnum() for part in parts)
+
+#----------Not currenly used, but could implemented in the future----------#
+#
+#    File-based licence validation
+#    def validate_licence_file(self, file_path: str) -> str:
+#        try:
+#            with open(file_path, 'r') as f:
+#                key = f.read().strip()
+#            
+#            if self.validate_licence(key):
+#                return key
+#            else:
+#                raise ValueError("Licence key in file is not valid")
+#        except FileNotFoundError:
+#            raise FileNotFoundError(f"Licence file not found: {file_path}")
+#        except Exception as e:
+#            raise Exception(f"Error reading licence file: {e}")

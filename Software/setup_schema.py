@@ -18,7 +18,7 @@ user_schema = {
     }
 }
 
-# Licences: key, owner_id?, role
+# Licences: key, owner_id, role
 licence_schema = {
     "$jsonSchema": {
         "bsonType": "object",
@@ -31,7 +31,7 @@ licence_schema = {
     }
 }
 
-# Tasks: title, board_id, column, description?, due_date?, priority, assigned_to?
+# Tasks: title, board_id, column, description, due_date, priority, assigned_to
 task_schema = {
     "$jsonSchema": {
         "bsonType": "object",
@@ -41,7 +41,7 @@ task_schema = {
             "board_id": {"bsonType": "objectId"},
             "column": {"enum": ["TODO", "DOING", "DONE"]},
             "description": {"bsonType": ["string", "null"]},
-            "due_date": {"bsonType": ["string", "null"]},
+            "due_date": {"bsonType": ["string", "null"], "pattern": r"^\d{4}-\d{2}-\d{2}$"},
             "priority": {"enum": ["low", "medium", "high"]},
             "assigned_to": {"bsonType": ["objectId", "null"]},
         },
@@ -64,9 +64,9 @@ board_schema = {
     }
 }
 
-
+# -----------------Schema Setup Logic-----------------#
+# Create collection with validator or update its validator if it exists
 def _ensure_collection(db, name: str, validator: dict):
-    """Create collection with validator or update its validator if it exists."""
     try:
         db.create_collection(name, validator=validator)
     except Exception as e:
@@ -75,8 +75,8 @@ def _ensure_collection(db, name: str, validator: dict):
         else:
             raise
 
+# Ensure all collections exist with proper validators and indexes.
 def ensure_schema():
-    """Ensure all collections exist with proper validators and indexes."""
     db = get_database()
 
     # Apply validators
@@ -87,11 +87,7 @@ def ensure_schema():
 
     # Helpful indexes
     # Uniqueness (handle existing non-unique indexes gracefully)
-
     def _ensure_unique_index(coll, field: str, name: str):
-        """Ensure a unique index on `field` exists.
-        If a non-unique index with the same key exists, drop it and recreate as unique.
-        """
         try:
             # Inspect existing indexes
             for idx in coll.list_indexes():

@@ -30,7 +30,7 @@ class Task:
         description: str | None = None,
         due_date: str | None = None,
         priority: str = "medium",   # default is set to medium
-        assigned_to: ObjectId | None = None,    # Can be extended to assign tasks to users in the future
+        assigned_to: ObjectId | None = None,    #The functionality of assign tasks is not implemented
         _id: ObjectId = None,
     ):
         self._id = _id

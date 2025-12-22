@@ -62,6 +62,20 @@ class OutputFormatter:
             tablefmt="grid"
         ))
     
+    # Print task details
+    @staticmethod
+    def print_task_details(task):
+        print(f"\n{'='*80}")
+        print(f"{'TASK DETAILS':^80}")
+        print(f"{'='*80}")
+        print(f"Title:       {task.title}")
+        print(f"ID:          {str(task._id)}")
+        print(f"Column:      {task.column}")
+        print(f"Priority:    {task.priority.upper()}")
+        print(f"Due Date:    {task.due_date or 'N/A'}")
+        print(f"Description: {task.description or 'N/A'}")
+        print(f"{'='*80}\n")
+    
     # Print success message
     @staticmethod
     def print_success(message: str):

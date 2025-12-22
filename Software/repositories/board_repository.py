@@ -42,18 +42,19 @@ class BoardRepository:
         docs = self.adapter.find_many(self.COLLECTION_NAME, {"name": name})
         return [Board(**{**doc, '_id': doc['_id']}) for doc in docs]
     
-    # Not used currently, but useful for adding update/delete board features in the future
-    def update_board(self, board_id: ObjectId, updates: dict) -> bool:
-        modified = self.adapter.update_one(
-            self.COLLECTION_NAME,
-            {"_id": board_id},
-            updates
-        )
-        return modified > 0
-    
     def delete_board(self, board_id: ObjectId) -> bool:
         deleted = self.adapter.delete_one(
             self.COLLECTION_NAME,
             {"_id": board_id}
         )
         return deleted > 0
+
+#----------Not currenly used, but could implemented in the future----------#
+#   Adding update/delete board features
+#    def update_board(self, board_id: ObjectId, updates: dict) -> bool:
+#        modified = self.adapter.update_one(
+#            self.COLLECTION_NAME,
+#            {"_id": board_id},
+#            updates
+#        )
+#        return modified > 0

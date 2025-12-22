@@ -33,22 +33,6 @@ class UserRepository:
         docs = self.adapter.find_many(self.COLLECTION_NAME, {"role": role})
         return [self._instantiate_user(doc) for doc in docs]
     
-    # Not used currently, used by update_user_role
-    def update_user_field(self, user_id: ObjectId, updates: dict) -> bool:
-        modified = self.adapter.update_one(
-            self.COLLECTION_NAME,
-            {"_id": user_id},
-            updates
-        )
-        return modified > 0 # Return True if at least one document was modified
-    
-    # Not used currently, but useful for changing user roles in the future
-    def update_user_role(self, user_id: ObjectId, new_role: str) -> bool:
-        valid_roles = ["Members", "Hashira", "Boss"]
-        if new_role not in valid_roles:
-            raise ValueError(f"Invalid role. Must be one of {valid_roles}")
-        return self.update_user_field(user_id, {"role": new_role})
-    
     #---------------Helper Functions-----------------#
     # Hash password using SHA-256
     @staticmethod
@@ -72,3 +56,11 @@ class UserRepository:
             return Hashira(**common_kwargs)
         else:  # Default to Members
             return Members(**common_kwargs)
+        
+#----------Not currenly used, but could implemented in the future----------#
+#    Changing user roles
+#    def update_user_role(self, user_id: ObjectId, new_role: str) -> bool:
+#        valid_roles = ["Members", "Hashira", "Boss"]
+#        if new_role not in valid_roles:
+#            raise ValueError(f"Invalid role. Must be one of {valid_roles}")
+#        return self.update_user_field(user_id, {"role": new_role})

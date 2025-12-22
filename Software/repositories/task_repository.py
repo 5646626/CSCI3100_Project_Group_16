@@ -22,11 +22,6 @@ class TaskRepository:
         if not doc:
             return None
         return Task(**{**doc, '_id': doc['_id']})
-
-    # Not used currently, but useful for find all tasks in a board
-    def find_task_by_board(self, board_id: ObjectId) -> list:
-        docs = self.adapter.find_many(self.COLLECTION_NAME, {"board_id": board_id})
-        return [Task(**{**doc, '_id': doc['_id']}) for doc in docs]
     
     def find_task_by_column(self, board_id: ObjectId, column: str) -> list:
         docs = self.adapter.find_many(
@@ -61,4 +56,8 @@ class TaskRepository:
                 ]
             }
         )
+        return [Task(**{**doc, '_id': doc['_id']}) for doc in docs]
+    
+    def find_task_by_board(self, board_id: ObjectId) -> list:
+        docs = self.adapter.find_many(self.COLLECTION_NAME, {"board_id": board_id})
         return [Task(**{**doc, '_id': doc['_id']}) for doc in docs]

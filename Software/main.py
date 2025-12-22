@@ -8,11 +8,11 @@ from services.search_service import SearchService
 from bson import ObjectId
 from setup_schema import ensure_schema
 
-# Session storage (for demo - in production use session management)
+# Session storage, holds the currently logged-in user
 current_user = None
 
+# Execute a command line
 def execute_command(command_line: str):
-    """Execute a single command line."""
     global current_user
     
     # Parse the command line
@@ -89,7 +89,7 @@ def execute_command(command_line: str):
         
         elif parsed_args.command == "view-board":
             board_service = BoardService()
-            board = board_service.get_board_visible_to_user(parsed_args.name, current_user._id, current_user.role)
+            board = board_service.get_board_visible_to_user(parsed_args.board, current_user._id, current_user.role)
             task_service = TaskService()
             # Group tasks by column
             tasks_by_column = {}
@@ -135,6 +135,7 @@ def execute_command(command_line: str):
                     "title": parsed_args.new_title,
                     "description": parsed_args.desc,
                     "priority": parsed_args.priority,
+                    "due_date": parsed_args.due,
                 }.items()
                 if value is not None
             }
@@ -173,6 +174,19 @@ def execute_command(command_line: str):
             task_service.delete_task(task._id, current_user.role)
             formatter.print_success(f"Task '{parsed_args.title}' deleted")
         
+        elif parsed_args.command == "view-task":
+            board_service = BoardService()
+            board = board_service.get_board_by_name(parsed_args.board, current_user._id)
+            task_service = TaskService()
+            # Find task by title in the board
+            tasks = task_service.task_repo.find_task_by_board(board._id)
+            task = next((t for t in tasks if t.title == parsed_args.title), None)
+            if not task:
+                formatter.print_error(f"Task '{parsed_args.title}' not found in board '{parsed_args.board}'")
+                return True
+            
+            formatter.print_task_details(task)
+        
         # Search command
         elif parsed_args.command == "search":
             board_service = BoardService()
@@ -196,8 +210,8 @@ def execute_command(command_line: str):
     
     return True
 
+# Main REPL loop
 def main():
-    """Interactive REPL for Kanban CLI."""
     # Ensure DB collections and validators are in place before running
     try:
         ensure_schema()
@@ -207,7 +221,7 @@ def main():
     print("=" * 60)
     print("CLI-Kanban: Interactive Task Management")
     print("=" * 60)
-    print("Commands: signup, login, signout, create-board, list-boards, view-board, add-task, edit-task, move-task, delete-task, search")
+    print("Commands: signup, login, signout, create-board, list-boards, view-board, add-task, edit-task, move-task, delete-task, view-task, search")
     print("Type 'help' for full documentation, 'quit' to exit")
     print("=" * 60)
 

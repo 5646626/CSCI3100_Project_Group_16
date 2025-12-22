@@ -35,19 +35,12 @@ class BoardService:
             raise ValueError(f"Board '{name}' not found for this user")
         return board
 
+    # Get the board by name that is visible to the current user
+    # All user roles can view boards created by Boss users
+    # Can be expanded in the future for more complex visibility rules
     def get_board_visible_to_user(self, name: str, user_id: ObjectId, user_role: str) -> Board:
-        """Get a board by name that is visible to the current user.
-        
-        - Boss: can access their own boards by name.
-        - Members/Hashira: can access boards by name created by any Boss.
-        """
-        if user_role == "Boss":
-            board = self.board_repo.find_board_by_name(name, user_id)
-            if not board:
-                raise ValueError(f"Board '{name}' not found for this user")
-            return board
 
-        # Non-boss users: look up boards by name, but only those owned by Boss users
+        # All user roles: look up boards by name, but only those owned by Boss users
         candidate_boards = self.board_repo.find_boards_by_name(name)
         if not candidate_boards:
             raise ValueError(f"Board '{name}' not found")
@@ -65,39 +58,16 @@ class BoardService:
         # If multiple boards have the same name across different Boss owners, return the first deterministically
         return boss_owned[0]
     
+    # List all boards visible to the user
     def list_boards_for_user(self, user_id: ObjectId, user_role: str) -> list:
-        """List boards visible to the current user.
 
-        - Boss: lists boards they own.
-        - Members/Hashira: lists all boards owned by any Boss.
-        """
-        if user_role == "Boss":
-            return self.board_repo.find_board_by_owner(user_id)
-
-        # Non-boss users: list all boards owned by Boss users
+        # All user roles: list all boards owned by Boss users
         boss_users = self.user_repo.find_user_by_role("Boss")
         boss_ids = {u._id for u in boss_users if getattr(u, "_id", None)}
         visible_boards = []
         for boss_id in boss_ids:
             visible_boards.extend(self.board_repo.find_board_by_owner(boss_id))
         return visible_boards
-    
-    # Not currently user, but can add a column to the board for future use
-    def add_column(self, board_id: ObjectId, column_name: str) -> bool:
-        board = self.board_repo.find_board_by_id(board_id)
-        if not board:
-            raise ValueError("Board not found")
-
-        normalized_column = column_name.upper()
-
-        if normalized_column in board.columns:
-            raise ValueError(f"Column '{column_name}' already exists")
-        
-        if len(board.columns) >= 10:
-            raise ValueError("Maximum 10 columns per board")
-        
-        board.columns.append(normalized_column)
-        return self.board_repo.update_board(board_id, {"columns": board.columns})
     
     # Delete a board by name
     def delete_board(self, board_name: str, owner_id: ObjectId, user_role: str) -> bool:
@@ -111,3 +81,21 @@ class BoardService:
             self.task_repo.delete_task(task._id)
 
         return self.board_repo.delete_board(board._id)
+    
+#----------Not currenly used, but could implemented in the future----------#
+#   Add a column to the board
+#   def add_column(self, board_id: ObjectId, column_name: str) -> bool:
+#     board = self.board_repo.find_board_by_id(board_id)
+#     if not board:
+#         raise ValueError("Board not found")
+#
+#     normalized_column = column_name.upper()
+#
+#     if normalized_column in board.columns:
+#       raise ValueError(f"Column '{column_name}' already exists")
+#     
+#     if len(board.columns) >= 10:
+#       raise ValueError("Maximum 10 columns per board")
+#  
+#    board.columns.append(normalized_column)
+#    return self.board_repo.update_board(board_id, {"columns": board.columns})
