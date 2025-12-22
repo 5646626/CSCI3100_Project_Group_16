@@ -10,7 +10,7 @@ class UserRepository:
     
     def __init__(self, adapter: MongoDBAdapter = None):
         self.adapter = adapter or MongoDBAdapter()
-        self.adapter.create_index(self.COLLECTION_NAME, "username") # Ensure username is indexed for fast lookup
+        # Indexes are managed centrally in setup_schema.ensure_schema()
     
     def create_new_user(self, user: Members) -> ObjectId:
         doc = user.to_dict()

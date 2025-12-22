@@ -6,6 +6,7 @@ from services.board_services import BoardService
 from services.task_service import TaskService
 from services.search_service import SearchService
 from bson import ObjectId
+from setup_schema import ensure_schema
 
 # Session storage (for demo - in production use session management)
 current_user = None
@@ -188,6 +189,12 @@ def execute_command(command_line: str):
 
 def main():
     """Interactive REPL for Kanban CLI."""
+    # Ensure DB collections and validators are in place before running
+    try:
+        ensure_schema()
+    except Exception as e:
+        print(f"Warning: Schema setup failed: {e}")
+    
     print("=" * 60)
     print("CLI-Kanban: Interactive Task Management")
     print("=" * 60)

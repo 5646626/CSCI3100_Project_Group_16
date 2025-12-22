@@ -14,7 +14,8 @@ def create_parser():
     signup_parser = subparsers.add_parser("signup", help="Register a new user")
     signup_parser.add_argument("--username", required=True, help="Username")
     signup_parser.add_argument("--password", required=True, help="Password")
-    signup_parser.add_argument("--email", help="Email address")
+    # Email is required to satisfy DB schema validator
+    signup_parser.add_argument("--email", required=True, help="Email address")
     signup_parser.add_argument("--role", default="Members", choices=["Members", "Hashira", "Boss"], help="User role")
     
     login_parser = subparsers.add_parser("login", help="Login to the system")

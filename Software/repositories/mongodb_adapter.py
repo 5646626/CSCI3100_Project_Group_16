@@ -66,9 +66,13 @@ class MongoDBAdapter:
     # Create an index on a field
     # It helps to speed up queries on that field
     # Example: adapter.create_index("users", "username")
-    def create_index(self, collection_name: str, field: str):
+    def create_index(self, collection_name: str, field: str, unique: bool = False):
         try:
             collection = self.db[collection_name]
-            collection.create_index(field)
+            collection.create_index(field, unique=unique)
         except PyMongoError as e:
+            msg = str(e)
+            # Ignore benign conflicts when an index already exists with different options
+            if "already exists" in msg or "IndexOptionsConflict" in msg:
+                return
             raise Exception(f"MongoDB index error: {e}")

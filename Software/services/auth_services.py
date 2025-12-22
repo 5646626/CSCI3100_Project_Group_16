@@ -1,6 +1,7 @@
 from repositories.user_repository import UserRepository
 from models.base_user import Members, Hashira, Boss
 from bson import ObjectId
+import re
 
 class AuthService:
     """Service for user authentication and role management."""
@@ -18,6 +19,11 @@ class AuthService:
         valid_roles = ["Members", "Hashira", "Boss"]
         if role not in valid_roles:
             raise ValueError(f"Invalid role. Must be one of {valid_roles}")
+
+        # Validate email early to avoid DB validator errors
+        email_pattern = r"^[^\s@]+@[^\s@]+\.[^\s@]+$"
+        if not email or not re.match(email_pattern, email):
+            raise ValueError("Invalid or missing email. Please provide a valid email address.")
         
         # Create user with appropriate role class
         password_hash = UserRepository.hash_password(password)
@@ -49,4 +55,4 @@ class AuthService:
     
     def promote_user(self, user_id: ObjectId, new_role: str) -> bool:
         """Promote/demote user to a different role."""
-        return self.user_repo.update_role(user_id, new_role)
+        return self.user_repo.update_user_role(user_id, new_role)
