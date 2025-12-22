@@ -11,6 +11,7 @@ class LicenceRepository:
         self.adapter = adapter or MongoDBAdapter()
         self.adapter.create_index(self.COLLECTION_NAME, "key")
         self.adapter.create_index(self.COLLECTION_NAME, "owner_id")
+        self.adapter.create_index(self.COLLECTION_NAME, "role")
     
     def create_licence(self, licence: Licence) -> ObjectId:
         doc = licence.to_dict()
@@ -28,6 +29,15 @@ class LicenceRepository:
         if not doc:
             return None
         return Licence(**{**doc, '_id': doc['_id']})
+
+    def assign_owner(self, key: str, owner_id: ObjectId) -> bool:
+        """Bind a licence key to a user if it is not already claimed."""
+        modified = self.adapter.update_one(
+            self.COLLECTION_NAME,
+            {"key": key, "owner_id": None},
+            {"owner_id": owner_id},
+        )
+        return modified > 0
     
     # Validate if a licence key exists
     def validate_licence(self, key: str) -> bool:

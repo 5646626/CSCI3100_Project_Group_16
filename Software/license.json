@@ -1,0 +1,9 @@
+[
+  {"key": "ABCD-EF12-GH34-IJ56", "role": "Members"},
+  {"key": "KLMN-OP78-QR90-ST12", "role": "Members"},
+  {"key": "UVWX-YZ34-AB56-CD78", "role": "Hashira"},
+  {"key": "EFGH-IJ90-KL12-MN34", "role": "Hashira"},
+  {"key": "PQRS-TU56-VW78-XY90", "role": "Boss"},
+  {"key": "ZABC-DE12-FG34-HI56", "role": "Boss"},
+  {"key": "JKLM-OP12-QR34-ST56", "role": "Boss"}
+]

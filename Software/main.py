@@ -41,18 +41,19 @@ def execute_command(command_line: str):
     if not parsed_args.command:
         parser.print_help()
         return True
-    
+
     try:
         # Auth commands (no user required)
         if parsed_args.command == "signup":
             auth_service = AuthService()
-            user_id = auth_service.signup(
+            user_id, resolved_role = auth_service.signup(
                 parsed_args.username,
                 parsed_args.password,
                 parsed_args.email,
-                parsed_args.role
+                parsed_args.role,
+                parsed_args.licence_key,
             )
-            formatter.print_success(f"User '{parsed_args.username}' created as '{parsed_args.role}'")
+            formatter.print_success(f"User '{parsed_args.username}' created as '{resolved_role}'")
         
         elif parsed_args.command == "login":
             auth_service = AuthService()
@@ -201,7 +202,7 @@ def main():
     print("Commands: signup, login, create-board, list-boards, add-task, edit-task, move-task, delete-task, search")
     print("Type 'help' for full documentation, 'quit' to exit")
     print("=" * 60)
-    
+
     while True:
         try:
             command_line = input("\nkanban> ").strip()

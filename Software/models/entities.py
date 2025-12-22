@@ -62,15 +62,17 @@ class Task:
 
 
 class Licence:
-    def __init__(self, key: str, owner_id: ObjectId, _id: ObjectId = None):
+    def __init__(self, key: str, owner_id: ObjectId, role: str = "Members", _id: ObjectId = None):
         self._id = _id
         self.key = key
         self.owner_id = owner_id
+        self.role = role
 
     def to_dict(self):
         result = {
             "key": self.key,
             "owner_id": self.owner_id,
+            "role": self.role,
         }
         if self._id is not None:
             result["_id"] = self._id

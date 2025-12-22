@@ -17,6 +17,7 @@ def create_parser():
     # Email is required to satisfy DB schema validator
     signup_parser.add_argument("--email", required=True, help="Email address")
     signup_parser.add_argument("--role", default="Members", choices=["Members", "Hashira", "Boss"], help="User role")
+    signup_parser.add_argument("--licence", "--license", dest="licence_key", required=True, help="Licence key in AAAA-BBBB-CCCC-DDDD format")
     
     login_parser = subparsers.add_parser("login", help="Login to the system")
     login_parser.add_argument("--username", required=True, help="Username")
