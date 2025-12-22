@@ -2,23 +2,23 @@ from repositories.licence_repository import LicenceRepository
 from models.entities import Licence
 from bson import ObjectId
 
+#----------------Licence Service-----------------#
 class LicenceService:
-    """Service for licence management."""
     
     VALID_FORMAT = "AAAA-BBBB-CCCC-DDDD"
     
     def __init__(self, licence_repo: LicenceRepository = None):
         self.licence_repo = licence_repo or LicenceRepository()
     
+    # Check if licence key is valid
     def validate_licence(self, key: str) -> bool:
-        """Check if licence key is valid."""
         if not self._is_valid_format(key):
             raise ValueError(f"Invalid licence format. Expected: {self.VALID_FORMAT}")
         
         return self.licence_repo.validate_licence(key)
 
+    # Fetch a licence that exists but is not yet claimed
     def get_redeemable_licence(self, key: str) -> Licence:
-        """Fetch a licence that exists and is not yet claimed."""
         if not self._is_valid_format(key):
             raise ValueError(f"Invalid licence format. Expected: {self.VALID_FORMAT}")
 
@@ -30,8 +30,8 @@ class LicenceService:
 
         return licence
     
+    # Not currently used, but could be useful for file-based licence validation
     def validate_licence_file(self, file_path: str) -> str:
-        """Read and validate licence from file."""
         try:
             with open(file_path, 'r') as f:
                 key = f.read().strip()
@@ -45,8 +45,8 @@ class LicenceService:
         except Exception as e:
             raise Exception(f"Error reading licence file: {e}")
     
+    # Not currently used, but could be useful for creating licences in the future
     def create_licence(self, key: str, owner_id: ObjectId | None = None, role: str = "Members") -> ObjectId:
-        """Create a new licence record; owner_id may be None until redeemed."""
         if not self._is_valid_format(key):
             raise ValueError(f"Invalid licence format. Expected: {self.VALID_FORMAT}")
 
@@ -63,6 +63,7 @@ class LicenceService:
         if not updated:
             raise ValueError("Failed to claim licence key; it may have been used")
     
+    #----------------Helper Functions-----------------#
     @staticmethod
     def _is_valid_format(key: str) -> bool:
         """Check licence key format AAAA-BBBB-CCCC-DDDD."""

@@ -1,45 +1,90 @@
 from repositories.board_repository import BoardRepository
 from repositories.task_repository import TaskRepository
+from repositories.user_repository import UserRepository
 from models.entities import Board
 from models.base_user import Boss
 from bson import ObjectId
 
+# ---------------Board Service-----------------#
 class BoardService:
-    """Service for board management with role-based access control."""
-    
-    def __init__(self, board_repo: BoardRepository = None, task_repo: TaskRepository = None):
+
+    def __init__(self, board_repo: BoardRepository = None, task_repo: TaskRepository = None, user_repo: UserRepository = None):
         self.board_repo = board_repo or BoardRepository()
         self.task_repo = task_repo or TaskRepository()
+        self.user_repo = user_repo or UserRepository()
     
     def create_board(self, name: str, owner_id: ObjectId, user_role: str) -> ObjectId:
-        """Only Boss role can create boards."""
+        # Ensure that only the Boss can create boards
         if user_role != "Boss":
             raise PermissionError(f"User role '{user_role}' cannot create boards. Only 'Boss' can.")
         
-        if self.board_repo.find_by_name(name, owner_id):
+        if self.board_repo.find_board_by_name(name, owner_id):
             raise ValueError(f"Board '{name}' already exists")
         
         board = Board(name=name, owner_id=owner_id)
-        return self.board_repo.create(board)
+        return self.board_repo.create_board(board)
     
+    # Get the board by board_id
     def get_board(self, board_id: ObjectId) -> Board:
-        """Get board by ID."""
-        return self.board_repo.find_by_id(board_id)
+        return self.board_repo.find_board_by_id(board_id)
 
+    # Get the board by board_name
     def get_board_by_name(self, name: str, owner_id: ObjectId) -> Board:
-        """Resolve a board by its name for a specific owner."""
-        board = self.board_repo.find_by_name(name, owner_id)
+        board = self.board_repo.find_board_by_name(name, owner_id)
         if not board:
             raise ValueError(f"Board '{name}' not found for this user")
         return board
+
+    def get_board_visible_to_user(self, name: str, user_id: ObjectId, user_role: str) -> Board:
+        """Get a board by name that is visible to the current user.
+        
+        - Boss: can access their own boards by name.
+        - Members/Hashira: can access boards by name created by any Boss.
+        """
+        if user_role == "Boss":
+            board = self.board_repo.find_board_by_name(name, user_id)
+            if not board:
+                raise ValueError(f"Board '{name}' not found for this user")
+            return board
+
+        # Non-boss users: look up boards by name, but only those owned by Boss users
+        candidate_boards = self.board_repo.find_boards_by_name(name)
+        if not candidate_boards:
+            raise ValueError(f"Board '{name}' not found")
+
+        # Filter to boards whose owner has role Boss
+        boss_owned = []
+        for b in candidate_boards:
+            owner = self.user_repo.find_user_by_id(b.owner_id)
+            if owner and getattr(owner, "role", "Members") == "Boss":
+                boss_owned.append(b)
+
+        if not boss_owned:
+            raise PermissionError("You can only view boards created by a Boss")
+
+        # If multiple boards have the same name across different Boss owners, return the first deterministically
+        return boss_owned[0]
     
-    def list_boards(self, owner_id: ObjectId) -> list:
-        """List all boards for a user (Members, Hashira, Boss can view)."""
-        return self.board_repo.find_by_owner(owner_id)
+    def list_boards_for_user(self, user_id: ObjectId, user_role: str) -> list:
+        """List boards visible to the current user.
+
+        - Boss: lists boards they own.
+        - Members/Hashira: lists all boards owned by any Boss.
+        """
+        if user_role == "Boss":
+            return self.board_repo.find_board_by_owner(user_id)
+
+        # Non-boss users: list all boards owned by Boss users
+        boss_users = self.user_repo.find_user_by_role("Boss")
+        boss_ids = {u._id for u in boss_users if getattr(u, "_id", None)}
+        visible_boards = []
+        for boss_id in boss_ids:
+            visible_boards.extend(self.board_repo.find_board_by_owner(boss_id))
+        return visible_boards
     
+    # Not currently user, but can add a column to the board for future use
     def add_column(self, board_id: ObjectId, column_name: str) -> bool:
-        """Add a column to board."""
-        board = self.board_repo.find_by_id(board_id)
+        board = self.board_repo.find_board_by_id(board_id)
         if not board:
             raise ValueError("Board not found")
 
@@ -52,17 +97,17 @@ class BoardService:
             raise ValueError("Maximum 10 columns per board")
         
         board.columns.append(normalized_column)
-        return self.board_repo.update(board_id, {"columns": board.columns})
+        return self.board_repo.update_board(board_id, {"columns": board.columns})
     
+    # Delete a board by name
     def delete_board(self, board_name: str, owner_id: ObjectId, user_role: str) -> bool:
-        """Only Boss role can delete boards."""
         if user_role != "Boss":
             raise PermissionError(f"User role '{user_role}' cannot delete boards. Only 'Boss' can.")
 
         board = self.get_board_by_name(board_name, owner_id)
 
-        tasks = self.task_repo.find_by_board(board._id)
+        tasks = self.task_repo.find_task_by_board(board._id)
         for task in tasks:
-            self.task_repo.delete(task._id)
+            self.task_repo.delete_task(task._id)
 
-        return self.board_repo.delete(board._id)
+        return self.board_repo.delete_board(board._id)

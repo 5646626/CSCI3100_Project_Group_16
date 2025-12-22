@@ -16,9 +16,6 @@ class TaskRepository:
         doc = task.to_dict()
         task_id = self.adapter.insert_one(self.COLLECTION_NAME, doc)
         return task_id
-
-    def create(self, task: Task) -> ObjectId:
-        return self.create_task(task)
     
     def find_task_by_id(self, task_id: ObjectId) -> Task:
         doc = self.adapter.find_one(self.COLLECTION_NAME, {"_id": task_id})
@@ -26,15 +23,10 @@ class TaskRepository:
             return None
         return Task(**{**doc, '_id': doc['_id']})
 
-    def find_by_id(self, task_id: ObjectId) -> Task:
-        return self.find_task_by_id(task_id)
-    
+    # Not used currently, but useful for find all tasks in a board
     def find_task_by_board(self, board_id: ObjectId) -> list:
         docs = self.adapter.find_many(self.COLLECTION_NAME, {"board_id": board_id})
         return [Task(**{**doc, '_id': doc['_id']}) for doc in docs]
-
-    def find_by_board(self, board_id: ObjectId) -> list:
-        return self.find_task_by_board(board_id)
     
     def find_task_by_column(self, board_id: ObjectId, column: str) -> list:
         docs = self.adapter.find_many(
@@ -42,9 +34,6 @@ class TaskRepository:
             {"board_id": board_id, "column": column}
         )
         return [Task(**{**doc, '_id': doc['_id']}) for doc in docs]
-
-    def find_by_column(self, board_id: ObjectId, column: str) -> list:
-        return self.find_task_by_column(board_id, column)
     
     def update_task(self, task_id: ObjectId, updates: dict) -> bool:
         modified = self.adapter.update_one(
@@ -53,9 +42,6 @@ class TaskRepository:
             updates
         )
         return modified > 0
-
-    def update(self, task_id: ObjectId, updates: dict) -> bool:
-        return self.update_task(task_id, updates)
     
     def delete_task(self, task_id: ObjectId) -> bool:
         deleted = self.adapter.delete_one(
@@ -63,9 +49,6 @@ class TaskRepository:
             {"_id": task_id}
         )
         return deleted > 0
-
-    def delete(self, task_id: ObjectId) -> bool:
-        return self.delete_task(task_id)
     
     def search_task(self, board_id: ObjectId, keyword: str) -> list:
         docs = self.adapter.find_many(
@@ -79,6 +62,3 @@ class TaskRepository:
             }
         )
         return [Task(**{**doc, '_id': doc['_id']}) for doc in docs]
-
-    def search(self, board_id: ObjectId, keyword: str) -> list:
-        return self.search_task(board_id, keyword)

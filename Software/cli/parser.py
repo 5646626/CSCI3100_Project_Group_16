@@ -1,7 +1,7 @@
 import argparse
 
+# Command parser using argparse
 def create_parser():
-    """Create and configure the argument parser."""
     parser = argparse.ArgumentParser(
         prog="kanban",
         description="CLI-Kanban: Command-line Kanban task management tool",

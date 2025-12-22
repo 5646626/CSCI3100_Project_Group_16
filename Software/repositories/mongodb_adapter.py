@@ -24,12 +24,12 @@ class MongoDBAdapter:
             raise Exception(f"MongoDB find error: {e}")
     
     # Find multiple documents
-    # Returns a list of documents matching the query
+    # Returns a list of documents that matches the query
     # limit specifies the maximum number of documents to return
     # Example: adapter.find_many("tasks", {"status": "todo"}, limit=10) means find up to 10 tasks with status "todo"
     def find_many(self, collection_name: str, query: dict = None, limit: int = 0):
         try:
-            collection = self.db[collection_name]       # Get the collection
+            collection = self.db[collection_name]
             query = query or {}
             return list(collection.find(query).limit(limit if limit > 0 else 0))
         except PyMongoError as e:
@@ -65,14 +65,15 @@ class MongoDBAdapter:
     
     # Create an index on a field
     # It helps to speed up queries on that field
-    # Example: adapter.create_index("users", "username")
+    # Enforce uniqueness if unique=True
+    # Example: adapter.create_index("users", "username", unique=True)
     def create_index(self, collection_name: str, field: str, unique: bool = False):
         try:
             collection = self.db[collection_name]
             collection.create_index(field, unique=unique)
         except PyMongoError as e:
             msg = str(e)
-            # Ignore benign conflicts when an index already exists with different options
+            # Ignore the error if the index already exists
             if "already exists" in msg or "IndexOptionsConflict" in msg:
                 return
             raise Exception(f"MongoDB index error: {e}")

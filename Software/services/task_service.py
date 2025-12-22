@@ -2,8 +2,8 @@ from repositories.task_repository import TaskRepository
 from models.entities import Task
 from bson import ObjectId
 
+#---------------Task Service-----------------#
 class TaskService:
-    """Service for task management with role-based access control."""
     
     def __init__(self, task_repo: TaskRepository = None):
         self.task_repo = task_repo or TaskRepository()
@@ -11,7 +11,7 @@ class TaskService:
     def create_task(self, title: str, board_id: ObjectId, column: str,
                    user_role: str, description: str = None, due_date: str = None,
                    priority: str = "medium") -> ObjectId:
-        """Hashira and Boss can create tasks. Members cannot."""
+        # Hashira and Boss can create tasks, Members cannot.
         if user_role not in ["Hashira", "Boss"]:
             raise PermissionError(f"User role '{user_role}' cannot create tasks. Only 'Hashira' or 'Boss' can.")
         
@@ -26,25 +26,21 @@ class TaskService:
             due_date=due_date,
             priority=priority
         )
-        return self.task_repo.create(task)
+        return self.task_repo.create_task(task)
     
-    def get_task(self, task_id: ObjectId) -> Task:
-        """Get task by ID (Members, Hashira, Boss can view)."""
-        return self.task_repo.find_by_id(task_id)
+    def get_task_by_id(self, task_id: ObjectId) -> Task:
+        return self.task_repo.find_task_by_id(task_id)
     
     def list_tasks_in_column(self, board_id: ObjectId, column: str) -> list:
-        """List tasks in a specific column (Members, Hashira, Boss can view)."""
-        return self.task_repo.find_by_column(board_id, column.upper())
+        return self.task_repo.find_task_by_column(board_id, column.upper())
     
     def edit_task(self, task_id: ObjectId, updates: dict, user_role: str) -> bool:
-        """Hashira and Boss can edit tasks. Members cannot."""
         if user_role not in ["Hashira", "Boss"]:
             raise PermissionError(f"User role '{user_role}' cannot edit tasks. Only 'Hashira' or 'Boss' can.")
         
-        return self.task_repo.update(task_id, updates)
+        return self.task_repo.update_task(task_id, updates)
     
     def move_task(self, task_id: ObjectId, new_column: str, user_role: str) -> bool:
-        """Hashira and Boss can move tasks between columns."""
         if user_role not in ["Hashira", "Boss"]:
             raise PermissionError(f"User role '{user_role}' cannot move tasks. Only 'Hashira' or 'Boss' can.")
         
@@ -53,11 +49,10 @@ class TaskService:
         if normalized_column not in valid_columns:
             raise ValueError(f"Invalid column. Must be one of {valid_columns}")
 
-        return self.task_repo.update(task_id, {"column": normalized_column})
+        return self.task_repo.update_task(task_id, {"column": normalized_column})
     
     def delete_task(self, task_id: ObjectId, user_role: str) -> bool:
-        """Hashira and Boss can delete tasks. Members cannot."""
         if user_role not in ["Hashira", "Boss"]:
             raise PermissionError(f"User role '{user_role}' cannot delete tasks. Only 'Hashira' or 'Boss' can.")
         
-        return self.task_repo.delete(task_id)
+        return self.task_repo.delete_task(task_id)

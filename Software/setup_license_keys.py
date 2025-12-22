@@ -9,7 +9,7 @@ from services.licence_service import LicenceService
 from repositories.licence_repository import LicenceRepository
 from setup_schema import ensure_schema
 
-
+# Load JSON file and normalize records
 def load_from_json(path: str) -> List[Dict[str, Any]]:
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -31,6 +31,7 @@ def load_from_json(path: str) -> List[Dict[str, Any]]:
     raise ValueError("Unsupported JSON format; expected a list")
 
 
+# Insert seed keys into the database
 def seed_keys(records: List[Dict[str, Any]], dry_run: bool = False) -> Dict[str, int]:
     # Ensure DB schema (including unique indexes) before seeding keys
     try:

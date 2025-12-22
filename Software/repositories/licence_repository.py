@@ -24,6 +24,7 @@ class LicenceRepository:
             return None
         return Licence(**{**doc, '_id': doc['_id']})
     
+    # Not used currently, but could be useful for finding licences owned by a user
     def find_licence_by_owner(self, owner_id: ObjectId) -> Licence:
         doc = self.adapter.find_one(self.COLLECTION_NAME, {"owner_id": owner_id})
         if not doc:

@@ -1,11 +1,11 @@
 from tabulate import tabulate
 
+# Format output for the CLI Kanban application
 class OutputFormatter:
-    """Format output for the CLI."""
     
+    # Print board as a ASCII table
     @staticmethod
     def print_board_view(board_name: str, columns: list, tasks_by_column: dict):
-        """Print board as ASCII table with task details."""
         print(f"\n{'='*100}")
         print(f"{'BOARD':^100}")
         print(f"{board_name:^100}")
@@ -43,9 +43,9 @@ class OutputFormatter:
         print(tabulate(table_data, headers=columns, tablefmt="grid"))
         print()
     
+    # Print tasks as table
     @staticmethod
     def print_task_list(tasks: list):
-        """Print tasks as table."""
         data = []
         for task in tasks:
             data.append([
@@ -62,12 +62,13 @@ class OutputFormatter:
             tablefmt="grid"
         ))
     
+    # Print success message
     @staticmethod
     def print_success(message: str):
-        """Print success message."""
+
         print(f"✓ {message}")
     
+    # Print error message
     @staticmethod
     def print_error(message: str):
-        """Print error message."""
         print(f"✗ Error: {message}")

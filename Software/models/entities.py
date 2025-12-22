@@ -7,7 +7,8 @@ class Board:
         self._id = _id
         self.name = name
         self.owner_id = owner_id
-        # Store the configurable column order; default to a classic TODO board
+        # All boards have the classic board with TODO, DOING, DONE columns by default
+        # Can be extended to a customised board in the future
         self.columns = columns or ["TODO", "DOING", "DONE"]
 
     def to_dict(self):
@@ -16,7 +17,7 @@ class Board:
             "owner_id": self.owner_id,
             "columns": self.columns,
         }
-        if self._id is not None:
+        if self._id is not None:    # Check if _id exists, if yes then include it
             result["_id"] = self._id
         return result
 
@@ -28,13 +29,14 @@ class Task:
         column: str,
         description: str | None = None,
         due_date: str | None = None,
-        priority: str = "medium",
-        assigned_to: ObjectId | None = None,
+        priority: str = "medium",   # default is set to medium
+        assigned_to: ObjectId | None = None,    # Can be extended to assign tasks to users in the future
         _id: ObjectId = None,
     ):
         self._id = _id
         self.title = title
         self.board_id = board_id
+        # Force classic columns (TODO, DOING, DONE), customised columns are not implemented yet
         valid_columns = {"TODO", "DOING", "DONE"}
         normalized_column = column.upper()
         if normalized_column not in valid_columns:
@@ -43,6 +45,7 @@ class Task:
         self.description = description
         self.due_date = due_date
         self.priority = priority
+        # Can be extended to assign tasks to users in the future
         self.assigned_to = assigned_to
 
     def to_dict(self):
@@ -73,6 +76,6 @@ class Licence:
             "owner_id": self.owner_id,
             "role": self.role,
         }
-        if self._id is not None:
+        if self._id is not None:    # Check if _id exists, if yes then include it
             result["_id"] = self._id
         return result

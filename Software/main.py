@@ -80,7 +80,7 @@ def execute_command(command_line: str):
         
         elif parsed_args.command == "list-boards":
             board_service = BoardService()
-            boards = board_service.list_boards(current_user._id)
+            boards = board_service.list_boards_for_user(current_user._id, current_user.role)
             if boards:
                 for board in boards:
                     print(f"  - {board.name} (columns: {', '.join(board.columns)})")
@@ -89,7 +89,7 @@ def execute_command(command_line: str):
         
         elif parsed_args.command == "view-board":
             board_service = BoardService()
-            board = board_service.get_board_by_name(parsed_args.name, current_user._id)
+            board = board_service.get_board_visible_to_user(parsed_args.name, current_user._id, current_user.role)
             task_service = TaskService()
             # Group tasks by column
             tasks_by_column = {}
@@ -123,7 +123,7 @@ def execute_command(command_line: str):
             board = board_service.get_board_by_name(parsed_args.board, current_user._id)
             task_service = TaskService()
             # Find task by title in the board
-            tasks = task_service.task_repo.find_by_board(board._id)
+            tasks = task_service.task_repo.find_task_by_board(board._id)
             task = next((t for t in tasks if t.title == parsed_args.title), None)
             if not task:
                 formatter.print_error(f"Task '{parsed_args.title}' not found in board '{parsed_args.board}'")
@@ -150,7 +150,7 @@ def execute_command(command_line: str):
             board = board_service.get_board_by_name(parsed_args.board, current_user._id)
             task_service = TaskService()
             # Find task by title in the board
-            tasks = task_service.task_repo.find_by_board(board._id)
+            tasks = task_service.task_repo.find_task_by_board(board._id)
             task = next((t for t in tasks if t.title == parsed_args.title), None)
             if not task:
                 formatter.print_error(f"Task '{parsed_args.title}' not found in board '{parsed_args.board}'")
@@ -164,7 +164,7 @@ def execute_command(command_line: str):
             board = board_service.get_board_by_name(parsed_args.board, current_user._id)
             task_service = TaskService()
             # Find task by title in the board
-            tasks = task_service.task_repo.find_by_board(board._id)
+            tasks = task_service.task_repo.find_task_by_board(board._id)
             task = next((t for t in tasks if t.title == parsed_args.title), None)
             if not task:
                 formatter.print_error(f"Task '{parsed_args.title}' not found in board '{parsed_args.board}'")
@@ -207,7 +207,7 @@ def main():
     print("=" * 60)
     print("CLI-Kanban: Interactive Task Management")
     print("=" * 60)
-    print("Commands: signup, login, signout, create-board, list-boards, add-task, edit-task, move-task, delete-task, search")
+    print("Commands: signup, login, signout, create-board, list-boards, view-board, add-task, edit-task, move-task, delete-task, search")
     print("Type 'help' for full documentation, 'quit' to exit")
     print("=" * 60)
 
