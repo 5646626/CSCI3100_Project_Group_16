@@ -23,6 +23,8 @@ def create_parser():
     login_parser.add_argument("--username", required=True, help="Username")
     login_parser.add_argument("--password", required=True, help="Password")
     
+    signout_parser = subparsers.add_parser("signout", help="Sign out from the system")
+    
     # Board commands
     create_board = subparsers.add_parser("create-board", help="Create a new board (Boss only)")
     create_board.add_argument("--name", required=True, help="Board name")

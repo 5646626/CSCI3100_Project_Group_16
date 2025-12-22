@@ -7,6 +7,7 @@ from bson import ObjectId
 
 from services.licence_service import LicenceService
 from repositories.licence_repository import LicenceRepository
+from setup_schema import ensure_schema
 
 
 def load_from_json(path: str) -> List[Dict[str, Any]]:
@@ -31,6 +32,12 @@ def load_from_json(path: str) -> List[Dict[str, Any]]:
 
 
 def seed_keys(records: List[Dict[str, Any]], dry_run: bool = False) -> Dict[str, int]:
+    # Ensure DB schema (including unique indexes) before seeding keys
+    try:
+        ensure_schema()
+    except Exception as e:
+        print(f"Warning: Schema setup failed before seeding: {e}")
+
     repo = LicenceRepository()  # ensures indexes
     service = LicenceService(repo)
 

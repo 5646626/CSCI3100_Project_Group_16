@@ -20,7 +20,7 @@ class BoardRepository:
     # Shorthand to match service expectations
     def create(self, board: Board) -> ObjectId:
         return self.create_board(board)
-    
+
     def find_board_by_id(self, board_id: ObjectId) -> Board:
         doc = self.adapter.find_one(self.COLLECTION_NAME, {"_id": board_id})
         if not doc:

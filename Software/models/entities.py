@@ -20,7 +20,6 @@ class Board:
             result["_id"] = self._id
         return result
 
-
 class Task:
     def __init__(
         self,
@@ -62,7 +61,7 @@ class Task:
 
 
 class Licence:
-    def __init__(self, key: str, owner_id: ObjectId, role: str = "Members", _id: ObjectId = None):
+    def __init__(self, key: str, owner_id: ObjectId | None = None, role: str = "Members", _id: ObjectId = None):
         self._id = _id
         self.key = key
         self.owner_id = owner_id

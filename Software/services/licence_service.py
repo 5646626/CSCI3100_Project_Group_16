@@ -45,8 +45,8 @@ class LicenceService:
         except Exception as e:
             raise Exception(f"Error reading licence file: {e}")
     
-    def create_licence(self, key: str, owner_id: ObjectId, role: str = "Members") -> ObjectId:
-        """Create a new licence for a user with a role binding."""
+    def create_licence(self, key: str, owner_id: ObjectId | None = None, role: str = "Members") -> ObjectId:
+        """Create a new licence record; owner_id may be None until redeemed."""
         if not self._is_valid_format(key):
             raise ValueError(f"Invalid licence format. Expected: {self.VALID_FORMAT}")
 

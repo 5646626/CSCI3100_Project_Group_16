@@ -60,6 +60,14 @@ def execute_command(command_line: str):
             current_user = auth_service.login(parsed_args.username, parsed_args.password)
             formatter.print_success(f"Logged in as '{current_user.username}' ({current_user.role})")
         
+        elif parsed_args.command == "signout":
+            if current_user:
+                username = current_user.username
+                current_user = None
+                formatter.print_success(f"Signed out successfully. Goodbye, {username}!")
+            else:
+                formatter.print_error("No user is currently logged in")
+        
         # All other commands require login
         elif current_user is None:
             formatter.print_error("You must login first. Use: login --username <user> --password <pass>")
@@ -199,7 +207,7 @@ def main():
     print("=" * 60)
     print("CLI-Kanban: Interactive Task Management")
     print("=" * 60)
-    print("Commands: signup, login, create-board, list-boards, add-task, edit-task, move-task, delete-task, search")
+    print("Commands: signup, login, signout, create-board, list-boards, add-task, edit-task, move-task, delete-task, search")
     print("Type 'help' for full documentation, 'quit' to exit")
     print("=" * 60)
 

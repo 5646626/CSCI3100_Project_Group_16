@@ -9,7 +9,7 @@ class LicenceRepository:
     
     def __init__(self, adapter: MongoDBAdapter = None):
         self.adapter = adapter or MongoDBAdapter()
-        self.adapter.create_index(self.COLLECTION_NAME, "key")
+        self.adapter.create_index(self.COLLECTION_NAME, "key", unique=True)
         self.adapter.create_index(self.COLLECTION_NAME, "owner_id")
         self.adapter.create_index(self.COLLECTION_NAME, "role")
     
