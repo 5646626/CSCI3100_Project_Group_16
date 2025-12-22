@@ -1,3 +1,11 @@
+"""
+Declaration of the use of generative AI:
+All the code in this folder was written with the assistance of generative AI.
+Code generated or written with the assistance of AI has been reviewed by the students to make sure that
+it meets the project requirements, specifications, and design.
+Comments with # are written by the students to explain the code. 
+"""
+
 import shlex
 from cli.parser import create_parser
 from cli.formatter import OutputFormatter
@@ -29,7 +37,7 @@ def execute_command(command_line: str):
         parser = create_parser()
         parser.print_help()
         return True
-    
+
     parser = create_parser()
     try:
         parsed_args = parser.parse_args(args)
